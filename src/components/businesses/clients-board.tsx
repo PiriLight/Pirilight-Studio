@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { CreditCard, Globe, Search } from "lucide-react";
+import { CreditCard, Globe, Pencil, Plus, Search } from "lucide-react";
 
 import { BusinessCard } from "@/components/businesses/business-card";
+import { BusinessFormDialog } from "@/components/crm/business-form-dialog";
 import {
   CLIENT_FILTERS,
   matchesFilter,
@@ -27,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { useProjectStore } from "@/store/use-project-store";
 import { useRenewalStore } from "@/store/use-renewal-store";
 import { useTaskStore } from "@/store/use-task-store";
-import type { MaintenanceRequest, Project, Renewal, Task } from "@/types";
+import type { Business, MaintenanceRequest, Project, Renewal, Task } from "@/types";
 
 function matchesQuery(row: ClientListRow, query: string): boolean {
   if (query.trim().length === 0) return true;
@@ -44,6 +45,7 @@ interface ClientsBoardProps {
   /** Snapshot GLOBAL do servidor — só para semear a `useMaintenanceStore` (Round 9). */
   initialMaintenanceRequests: MaintenanceRequest[];
   today: string;
+  crmEnabled?: boolean;
 }
 
 export function ClientsBoard({
@@ -53,6 +55,7 @@ export function ClientsBoard({
   initialRenewals,
   initialMaintenanceRequests,
   today,
+  crmEnabled = false,
 }: ClientsBoardProps) {
   const initializeProjects = useProjectStore((state) => state.initialize);
   const initializeTasks = useTaskStore((state) => state.initialize);
@@ -68,6 +71,8 @@ export function ClientsBoard({
 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ClientFilter>("all");
+  const [editingBusiness, setEditingBusiness] = useState<Business | "new" | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   // Round 6, secção 22-23: "Próxima renovação" e o filtro "Com renovação
   // próxima" deixam de ler o `BusinessSummary` congelado do servidor — cada
@@ -121,6 +126,11 @@ export function ClientsBoard({
               {option.label}
             </Button>
           ))}
+          {crmEnabled && (
+            <Button type="button" size="sm" onClick={() => setEditingBusiness("new")} className="shrink-0">
+              <Plus className="mr-2 h-4 w-4" /> Adicionar cliente
+            </Button>
+          )}
         </div>
       </div>
 
@@ -133,6 +143,7 @@ export function ClientsBoard({
             initialProjects={initialProjects}
             initialTasks={initialTasks}
             initialMaintenanceRequests={initialMaintenanceRequests}
+            onEdit={crmEnabled ? () => setEditingBusiness(row.summary.business) : undefined}
           />
         )}
         emptyState={
@@ -202,8 +213,31 @@ export function ClientsBoard({
               <span className="text-muted-foreground">{row.responsibleName ?? "—"}</span>
             ),
           },
+          ...(crmEnabled
+            ? [{
+                header: "",
+                cell: (row: ClientListRow) => (
+                  <Button type="button" size="icon" variant="ghost" onClick={() => setEditingBusiness(row.summary.business)}>
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Editar {row.summary.business.name}</span>
+                  </Button>
+                ),
+              }]
+            : []),
         ]}
       />
+
+      {feedback && <p aria-live="polite" className="text-sm text-muted-foreground">{feedback}</p>}
+
+      {editingBusiness && (
+        <BusinessFormDialog
+          key={editingBusiness === "new" ? "new" : editingBusiness.id}
+          open
+          onOpenChange={(open) => { if (!open) setEditingBusiness(null); }}
+          business={editingBusiness === "new" ? undefined : editingBusiness}
+          onSuccess={setFeedback}
+        />
+      )}
     </div>
   );
 }

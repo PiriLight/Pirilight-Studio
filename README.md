@@ -25,9 +25,13 @@ camada de acesso privado preparada para Supabase Auth:
 - logout e recuperação/reset de palavra-passe;
 - sem registo público e sem qualquer `service_role` no frontend.
 
-O conteúdo operacional continua a ser mock/local nesta fase. Os módulos que usam
-Zustand persistem alterações no `localStorage` do browser; autenticação não equivale
-ainda a uma base de dados partilhada.
+Com `PIRILIGHT_OPERATIONAL_DATA_SOURCE=supabase`, Comercial, Clientes e Contactos
+usam exclusivamente as tabelas Supabase e Server Actions protegidas por RLS. Sem
+essa ativação, essas áreas mantêm o modo de demonstração; não existe dual-write.
+Tasks, Goals e os restantes módulos com Zustand continuam em mock/localStorage.
+
+O inventário e o processo seguro para rever os dados de demonstração antes de uma
+importação real estão em [`docs/CRM_DATA_MIGRATION.md`](docs/CRM_DATA_MIGRATION.md).
 
 Consulta [`docs/AUTH_AUDIT.md`](docs/AUTH_AUDIT.md) para o diagnóstico e
 [`docs/PRODUCTION_SETUP.md`](docs/PRODUCTION_SETUP.md) para o checklist de ativação.

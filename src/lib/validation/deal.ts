@@ -10,6 +10,7 @@ import { auditFields, entityId, isoDate, money } from "./common";
 export const DEAL_STAGES = [
   "new",
   "contacted",
+  "meeting",
   "proposal_sent",
   "negotiating",
   "won",

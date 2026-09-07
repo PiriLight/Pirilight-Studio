@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { CreditCard, Globe } from "lucide-react";
+import { CreditCard, Globe, Pencil } from "lucide-react";
 
 import type { ClientListRow } from "@/components/businesses/client-list-row";
 import { LiveOverallStatusBadge } from "@/components/businesses/live-overall-status-badge";
 import { useLiveBusinessCounts } from "@/components/businesses/use-live-business-scope";
 import { PaymentProgress } from "@/components/domain/payment-progress";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatDateDisplay } from "@/lib/utils/format";
 import { renewalTypeLabel } from "@/lib/constants/labels";
 import { cn } from "@/lib/utils";
@@ -18,10 +19,11 @@ interface BusinessCardProps {
   initialTasks: Task[];
   /** Snapshot GLOBAL do servidor — só para semear a `useMaintenanceStore` (Round 9). */
   initialMaintenanceRequests: MaintenanceRequest[];
+  onEdit?: () => void;
 }
 
 /** Cartão de negócio — a vista mobile da lista de Clientes (a tabela vira isto abaixo de `md`). */
-export function BusinessCard({ row, initialProjects, initialTasks, initialMaintenanceRequests }: BusinessCardProps) {
+export function BusinessCard({ row, initialProjects, initialTasks, initialMaintenanceRequests, onEdit }: BusinessCardProps) {
   const { summary, responsibleName } = row;
   const { business, nextRenewal } = summary;
 
@@ -85,6 +87,11 @@ export function BusinessCard({ row, initialProjects, initialTasks, initialMainte
 
       {responsibleName && (
         <p className="mt-2 text-xs text-muted-foreground">Responsável: {responsibleName}</p>
+      )}
+      {onEdit && (
+        <Button type="button" size="sm" variant="outline" className="mt-3 w-full" onClick={onEdit}>
+          <Pencil className="mr-2 h-3.5 w-3.5" /> Editar cliente
+        </Button>
       )}
     </Card>
   );

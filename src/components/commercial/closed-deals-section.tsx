@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil } from "lucide-react";
 
 import { formatEuros } from "@/lib/utils/format";
+import { Button } from "@/components/ui/button";
 import type { CommercialDealCard } from "@/types";
 
 interface ClosedDealsSectionProps {
   cards: CommercialDealCard[];
+  onEdit?: (dealId: string) => void;
 }
 
 /**
@@ -17,7 +19,7 @@ interface ClosedDealsSectionProps {
  * defeito para não competir por espaço com os negócios que ainda estão em
  * jogo. Sem `FollowUpStatus` nem dropdown de stage: nada disto muda mais.
  */
-export function ClosedDealsSection({ cards }: ClosedDealsSectionProps) {
+export function ClosedDealsSection({ cards, onEdit }: ClosedDealsSectionProps) {
   const [expanded, setExpanded] = useState(false);
 
   if (cards.length === 0) {
@@ -45,15 +47,15 @@ export function ClosedDealsSection({ cards }: ClosedDealsSectionProps) {
 
       {expanded && (
         <div className="grid grid-cols-1 gap-6 border-t border-border px-4 py-4 sm:grid-cols-2">
-          <ClosedColumn title="Ganhos" cards={won} />
-          <ClosedColumn title="Perdidos" cards={lost} />
+          <ClosedColumn title="Ganhos" cards={won} onEdit={onEdit} />
+          <ClosedColumn title="Perdidos" cards={lost} onEdit={onEdit} />
         </div>
       )}
     </div>
   );
 }
 
-function ClosedColumn({ title, cards }: { title: string; cards: CommercialDealCard[] }) {
+function ClosedColumn({ title, cards, onEdit }: { title: string; cards: CommercialDealCard[]; onEdit?: (dealId: string) => void }) {
   return (
     <div className="flex flex-col gap-1.5">
       <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -65,15 +67,13 @@ function ClosedColumn({ title, cards }: { title: string; cards: CommercialDealCa
         <ul className="flex flex-col divide-y divide-border">
           {cards.map(({ deal, business }) => (
             <li key={deal.id}>
-              <Link
-                href={`/businesses/${business.id}`}
-                className="flex items-center justify-between gap-2 py-2 text-sm text-foreground hover:text-info hover:underline"
-              >
-                <span className="truncate">{business.name}</span>
-                {deal.value > 0 && (
-                  <span className="shrink-0 text-xs text-muted-foreground">{formatEuros(deal.value)}</span>
-                )}
-              </Link>
+              <div className="flex items-center gap-2 py-1">
+                <Link href={`/businesses/${business.id}`} className="flex min-w-0 flex-1 items-center justify-between gap-2 py-1 text-sm text-foreground hover:text-info hover:underline">
+                  <span className="truncate">{business.name}</span>
+                  {deal.value > 0 && <span className="shrink-0 text-xs text-muted-foreground">{formatEuros(deal.value)}</span>}
+                </Link>
+                {onEdit && <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={() => onEdit(deal.id)}><Pencil className="h-3.5 w-3.5" /><span className="sr-only">Editar oportunidade</span></Button>}
+              </div>
             </li>
           ))}
         </ul>

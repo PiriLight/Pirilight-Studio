@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
         response.headers.set("Cache-Control", "private, no-store");
         return response;
       }
+
+      console.error(
+        `[auth] Callback exchange rejected (${error.code ?? "unknown"}): ${error.message}`,
+      );
     } catch (error) {
       console.error("[auth] Callback exchange failed", {
         message: error instanceof Error ? error.message : "Unknown error",

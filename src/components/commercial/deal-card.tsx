@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Pencil } from "lucide-react";
 
 import { FollowUpStatus } from "@/components/domain/follow-up-status";
 import { LifecycleStatusBadge } from "@/components/domain/lifecycle-status-badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -23,13 +24,14 @@ interface DealCardProps {
   responsible: User | undefined;
   today: string;
   onChangeStage: (stage: DealStage) => void;
+  onEdit?: () => void;
 }
 
 /**
  * Um card por Deal — mostra só o que ajuda a decidir a próxima ação: quem é
  * o negócio, em que ponto está, de quem é a bola, e há quanto tempo.
  */
-export function DealCard({ card, responsible, today, onChangeStage }: DealCardProps) {
+export function DealCard({ card, responsible, today, onChangeStage, onEdit }: DealCardProps) {
   const { deal, business, urgency, daysDelta } = card;
   const daysSinceContact = -diffCalendarDays(deal.lastInteractionDate, today);
 
@@ -46,6 +48,13 @@ export function DealCard({ card, responsible, today, onChangeStage }: DealCardPr
           <p className="truncate text-xs text-muted-foreground">{business.industry}</p>
         </div>
 
+        <div className="flex shrink-0 items-center gap-0.5">
+        {onEdit && (
+          <Button type="button" size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+            <span className="sr-only">Editar oportunidade</span>
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger className="flex shrink-0 items-center gap-0.5 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground">
             <ChevronDown className="h-3.5 w-3.5" />
@@ -63,6 +72,7 @@ export function DealCard({ card, responsible, today, onChangeStage }: DealCardPr
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">

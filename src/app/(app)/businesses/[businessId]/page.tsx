@@ -6,6 +6,7 @@ import { BusinessHeader } from "@/components/businesses/business-header";
 import { BusinessMaintenanceTab } from "@/components/businesses/business-maintenance-tab";
 import { BusinessTasksTab } from "@/components/businesses/business-tasks-tab";
 import { DealHistoryRow } from "@/components/businesses/deal-history-row";
+import { ContactsManager } from "@/components/crm/contacts-manager";
 import { LiveBusinessRenewals } from "@/components/businesses/live-business-renewals";
 import { LiveProjectsTab } from "@/components/businesses/live-projects-tab";
 import { LiveUpcomingEvents } from "@/components/businesses/live-upcoming-events";
@@ -17,6 +18,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PAYMENT_STATUS_LABELS } from "@/lib/constants/labels";
 import { getBusinessOverview, getMaintenanceRequests, getProjects, getRenewals, getTasks, getUsers } from "@/lib/data";
+import { isSupabaseCrmEnabled } from "@/lib/data/crm-mode";
+import { buildCrmBusinessOverview, loadCrmSnapshot } from "@/lib/data/supabase/crm";
+import type { ContactRow } from "@/lib/data/supabase/operational";
 import { derivePaymentStatus } from "@/lib/utils/payment";
 import { diffCalendarDays, todayIso } from "@/lib/utils/date";
 import { formatDateDisplay, formatEuros } from "@/lib/utils/format";
@@ -41,18 +45,23 @@ const PAYMENT_STATUS_VARIANT: Record<PaymentStatus, "muted" | "info" | "success"
 export default async function BusinessDetailPage({ params, searchParams }: BusinessDetailPageProps) {
   const [{ businessId }, { tab }] = await Promise.all([params, searchParams]);
   const now = new Date();
-  const overview = await getBusinessOverview(businessId, now);
+  const today = todayIso(now);
+  const crmEnabled = isSupabaseCrmEnabled();
+  const snapshot = crmEnabled ? await loadCrmSnapshot() : null;
+  const overview = snapshot
+    ? buildCrmBusinessOverview(snapshot, businessId, today)
+    : await getBusinessOverview(businessId, now);
   if (overview === null) notFound();
 
-  const [users, allTasks, allProjects, allRenewals, allMaintenanceRequests] = await Promise.all([
-    getUsers(now),
+  const [mockUsers, allTasks, allProjects, allRenewals, allMaintenanceRequests] = await Promise.all([
+    snapshot ? Promise.resolve([]) : getUsers(now),
     getTasks(now),
     getProjects(now),
     getRenewals(now),
     getMaintenanceRequests(now),
   ]);
+  const users = snapshot?.users ?? mockUsers;
   const userById = new Map(users.map((user) => [user.id, user]));
-  const today = todayIso(now);
   const responsible = overview.responsibleUserId ? userById.get(overview.responsibleUserId) : undefined;
   const projects = overview.projects.map((item) => item.project);
   const projectIds = projects.map((project) => project.id);
@@ -65,7 +74,17 @@ export default async function BusinessDetailPage({ params, searchParams }: Busin
         <OverviewTab overview={overview} today={today} projectIds={projectIds} initialRenewals={allRenewals} />
       ),
     },
-    { value: "contacts", label: "Contactos", content: <ContactsTab overview={overview} /> },
+    {
+      value: "contacts",
+      label: "Contactos",
+      content: (
+        <ContactsTab
+          overview={overview}
+          crmEnabled={crmEnabled}
+          contactRows={snapshot?.contactRows.filter((contact) => contact.business_id === businessId)}
+        />
+      ),
+    },
     {
       value: "commercial",
       label: "Comercial",
@@ -235,7 +254,18 @@ function OverviewTab({
   );
 }
 
-function ContactsTab({ overview }: { overview: BusinessOverview }) {
+function ContactsTab({
+  overview,
+  crmEnabled,
+  contactRows = [],
+}: {
+  overview: BusinessOverview;
+  crmEnabled: boolean;
+  contactRows?: ContactRow[];
+}) {
+  if (crmEnabled) {
+    return <ContactsManager businessId={overview.business.id} contacts={contactRows} />;
+  }
   if (overview.contacts.length === 0) {
     return <EmptyState title="Sem contactos" description="Ainda não há contactos associados a este negócio." />;
   }

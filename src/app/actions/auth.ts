@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import { getAuthorization } from "@/lib/auth/authorization";
 import { safeNextPath } from "@/lib/auth/paths";
-import { getSiteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 const emailSchema = z.string().trim().toLowerCase().email("Introduz um email válido.");
@@ -89,46 +88,6 @@ export async function loginAction(
   }
 
   redirect(safeNextPath(formData.get("next")));
-}
-
-export async function forgotPasswordAction(
-  _previousState: AuthActionState,
-  formData: FormData,
-): Promise<AuthActionState> {
-  const parsed = emailSchema.safeParse(formData.get("email"));
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Introduz um email válido.",
-      fieldErrors: { email: parsed.error.issues.map((issue) => issue.message) },
-    };
-  }
-
-  try {
-    const supabase = await createClient();
-    const siteUrl = getSiteUrl();
-    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
-    });
-
-    if (error) {
-      console.error("[auth] Password recovery request failed", {
-        code: error.code,
-        message: error.message,
-      });
-    }
-  } catch (error) {
-    console.error("[auth] Password recovery is unavailable", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-
-  // Always return the same response to avoid revealing whether an account exists.
-  return {
-    status: "success",
-    message: "Se existir uma conta autorizada com esse email, receberás as instruções de recuperação.",
-  };
 }
 
 export async function resetPasswordAction(

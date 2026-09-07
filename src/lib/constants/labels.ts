@@ -61,6 +61,7 @@ export const LIFECYCLE_STATUS_LABELS = {
 export const DEAL_STAGE_LABELS = {
   new: "Novo",
   contacted: "Contacto obtido",
+  meeting: "Reunião",
   proposal_sent: "Proposta enviada",
   negotiating: "Em negociação",
   won: "Ganho",

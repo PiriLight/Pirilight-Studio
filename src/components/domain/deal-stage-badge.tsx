@@ -11,6 +11,7 @@ import type { DealStage } from "@/types";
 const VARIANT_BY_STAGE: Record<DealStage, BadgeProps["variant"]> = {
   new: "outline",
   contacted: "muted",
+  meeting: "secondary",
   proposal_sent: "secondary",
   negotiating: "info",
   won: "success",
