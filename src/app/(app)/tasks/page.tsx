@@ -1,6 +1,8 @@
 import { NewTaskButton } from "@/components/tasks/new-task-button";
 import { TasksBoard } from "@/components/tasks/tasks-board";
 import { PageHeader } from "@/components/layout/page-header";
+import { OperationalTasks } from "@/components/work-management/operational-tasks";
+import { requireAuthorizedUser } from "@/lib/auth/authorization";
 import {
   getBusinesses,
   getDeals,
@@ -10,6 +12,8 @@ import {
   getUsers,
 } from "@/lib/data";
 import { todayIso } from "@/lib/utils/date";
+import { isSupabaseOperationalDataEnabled } from "@/lib/data/crm-mode";
+import { loadWorkManagementSnapshot } from "@/lib/data/supabase/work-management";
 
 // A urgência das tarefas depende do dia de hoje — nunca prerenderizar esta
 // página em build-time, ou "hoje" fica congelado no dia do deploy.
@@ -17,6 +21,12 @@ export const dynamic = "force-dynamic";
 
 export default async function TasksPage() {
   const now = new Date();
+  if (isSupabaseOperationalDataEnabled()) {
+    const currentUser = await requireAuthorizedUser();
+    const snapshot = await loadWorkManagementSnapshot();
+    return <OperationalTasks snapshot={snapshot} currentUserId={currentUser.userId} today={todayIso(now)} />;
+  }
+
   const [tasks, users, businesses, projects, deals, maintenanceRequests] = await Promise.all([
     getTasks(now),
     getUsers(now),

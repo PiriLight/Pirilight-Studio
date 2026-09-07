@@ -18,8 +18,15 @@ export type DealInsert = PublicTables["deals"]["Insert"];
 export type DealUpdate = PublicTables["deals"]["Update"];
 export type ProjectRow = PublicTables["projects"]["Row"];
 export type TaskRow = PublicTables["tasks"]["Row"];
+export type TaskInsert = PublicTables["tasks"]["Insert"];
+export type TaskUpdate = PublicTables["tasks"]["Update"];
 export type GoalRow = PublicTables["goals"]["Row"];
+export type GoalInsert = PublicTables["goals"]["Insert"];
+export type GoalUpdate = PublicTables["goals"]["Update"];
 export type GoalMilestoneRow = PublicTables["goal_milestones"]["Row"];
+export type GoalMilestoneInsert = PublicTables["goal_milestones"]["Insert"];
+export type GoalMilestoneUpdate = PublicTables["goal_milestones"]["Update"];
+export type GoalTaskRow = PublicTables["goal_tasks"]["Row"];
 
 function assertData<T>(data: T | null, error: { message: string } | null, operation: string): T {
   if (error !== null) {
@@ -242,6 +249,27 @@ export async function listTasks(client: OperationalDataClient): Promise<TaskRow[
   return assertData(data, error, "listTasks");
 }
 
+export async function getTask(client: OperationalDataClient, id: string): Promise<TaskRow | null> {
+  const { data, error } = await client.from("tasks").select("*").eq("id", id).maybeSingle();
+  if (error !== null) throw new Error(`Supabase getTask: ${error.message}`);
+  return data;
+}
+
+export async function createTask(client: OperationalDataClient, input: TaskInsert): Promise<TaskRow> {
+  const { data, error } = await client.from("tasks").insert(input).select("*").single();
+  return assertData(data, error, "createTask");
+}
+
+export async function updateTask(client: OperationalDataClient, id: string, patch: TaskUpdate): Promise<TaskRow> {
+  const { data, error } = await client.from("tasks").update(patch).eq("id", id).select("*").single();
+  return assertData(data, error, "updateTask");
+}
+
+export async function deleteTask(client: OperationalDataClient, id: string): Promise<void> {
+  const { error } = await client.from("tasks").delete().eq("id", id);
+  assertNoError(error, "deleteTask");
+}
+
 export async function listGoals(client: OperationalDataClient): Promise<GoalRow[]> {
   const { data, error } = await client
     .from("goals")
@@ -249,6 +277,35 @@ export async function listGoals(client: OperationalDataClient): Promise<GoalRow[
     .order("deadline", { ascending: true, nullsFirst: false });
 
   return assertData(data, error, "listGoals");
+}
+
+export async function getGoal(client: OperationalDataClient, id: string): Promise<GoalRow | null> {
+  const { data, error } = await client.from("goals").select("*").eq("id", id).maybeSingle();
+  if (error !== null) throw new Error(`Supabase getGoal: ${error.message}`);
+  return data;
+}
+
+export async function createGoal(client: OperationalDataClient, input: GoalInsert): Promise<GoalRow> {
+  const { data, error } = await client.from("goals").insert(input).select("*").single();
+  return assertData(data, error, "createGoal");
+}
+
+export async function updateGoal(client: OperationalDataClient, id: string, patch: GoalUpdate): Promise<GoalRow> {
+  const { data, error } = await client.from("goals").update(patch).eq("id", id).select("*").single();
+  return assertData(data, error, "updateGoal");
+}
+
+export async function deleteGoal(client: OperationalDataClient, id: string): Promise<void> {
+  const { error } = await client.from("goals").delete().eq("id", id);
+  assertNoError(error, "deleteGoal");
+}
+
+export async function listAllGoalMilestones(client: OperationalDataClient): Promise<GoalMilestoneRow[]> {
+  const { data, error } = await client
+    .from("goal_milestones")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return assertData(data, error, "listAllGoalMilestones");
 }
 
 export async function listGoalMilestones(
@@ -262,4 +319,60 @@ export async function listGoalMilestones(
     .order("sort_order", { ascending: true });
 
   return assertData(data, error, "listGoalMilestones");
+}
+
+export async function createGoalMilestone(
+  client: OperationalDataClient,
+  input: GoalMilestoneInsert,
+): Promise<GoalMilestoneRow> {
+  const { data, error } = await client.from("goal_milestones").insert(input).select("*").single();
+  return assertData(data, error, "createGoalMilestone");
+}
+
+export async function updateGoalMilestone(
+  client: OperationalDataClient,
+  id: string,
+  patch: GoalMilestoneUpdate,
+): Promise<GoalMilestoneRow> {
+  const { data, error } = await client
+    .from("goal_milestones")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .single();
+  return assertData(data, error, "updateGoalMilestone");
+}
+
+export async function deleteGoalMilestone(client: OperationalDataClient, id: string): Promise<void> {
+  const { error } = await client.from("goal_milestones").delete().eq("id", id);
+  assertNoError(error, "deleteGoalMilestone");
+}
+
+export async function listGoalTasks(client: OperationalDataClient): Promise<GoalTaskRow[]> {
+  const { data, error } = await client.from("goal_tasks").select("*");
+  return assertData(data, error, "listGoalTasks");
+}
+
+export async function replaceGoalTasks(
+  client: OperationalDataClient,
+  goalId: string,
+  taskIds: readonly string[],
+): Promise<void> {
+  const { error: deleteError } = await client.from("goal_tasks").delete().eq("goal_id", goalId);
+  assertNoError(deleteError, "replaceGoalTasks/delete");
+  if (taskIds.length === 0) return;
+  const { error } = await client.from("goal_tasks").insert(taskIds.map((taskId) => ({ goal_id: goalId, task_id: taskId })));
+  assertNoError(error, "replaceGoalTasks/insert");
+}
+
+export async function replaceTaskGoals(
+  client: OperationalDataClient,
+  taskId: string,
+  goalIds: readonly string[],
+): Promise<void> {
+  const { error: deleteError } = await client.from("goal_tasks").delete().eq("task_id", taskId);
+  assertNoError(deleteError, "replaceTaskGoals/delete");
+  if (goalIds.length === 0) return;
+  const { error } = await client.from("goal_tasks").insert(goalIds.map((goalId) => ({ goal_id: goalId, task_id: taskId })));
+  assertNoError(error, "replaceTaskGoals/insert");
 }

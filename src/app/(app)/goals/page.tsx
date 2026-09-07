@@ -1,7 +1,11 @@
 import { GoalsBoard } from "@/components/goals/goals-board";
 import { NewGoalButton } from "@/components/goals/new-goal-button";
 import { PageHeader } from "@/components/layout/page-header";
+import { OperationalGoals } from "@/components/work-management/operational-goals";
+import { requireAuthorizedUser } from "@/lib/auth/authorization";
 import { getGoals, getTasks, getUsers } from "@/lib/data";
+import { isSupabaseOperationalDataEnabled } from "@/lib/data/crm-mode";
+import { loadWorkManagementSnapshot } from "@/lib/data/supabase/work-management";
 import { todayIso } from "@/lib/utils/date";
 
 // O estado derivado (Em curso/Concluído) e o "Próximo passo" das Tasks ligadas
@@ -15,6 +19,12 @@ export const dynamic = "force-dynamic";
  * `useGoalStore`.
  */
 export default async function GoalsPage() {
+  if (isSupabaseOperationalDataEnabled()) {
+    await requireAuthorizedUser();
+    const snapshot = await loadWorkManagementSnapshot();
+    return <OperationalGoals snapshot={snapshot} />;
+  }
+
   const now = new Date();
   const [goals, tasks, users] = await Promise.all([getGoals(now), getTasks(now), getUsers(now)]);
 
