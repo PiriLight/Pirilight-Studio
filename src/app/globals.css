@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * PiriLight Studio — design tokens
+ *
+ * Identidade: dark-first, técnica. O tema escuro é o default e a
+ * experiência principal da marca; o modo claro (abaixo) é uma alternativa
+ * construída a partir dos mesmos tokens, nunca o ponto de partida.
+ *
+ * Valores de marca (fornecidos): background #092634, foreground #F9F9F9,
+ * accent #FF6E42 / hover #FF7D57, secundário #004E72, azul luminoso #168CFF.
+ * Os restantes tons (card, muted, border, success/warning, e a paleta
+ * clara) são derivados a partir destes, com a mesma família de matiz.
+ */
+
+@layer base {
+  :root {
+    /* Dark é o default: aplicado diretamente em :root. O light mode
+       (mais abaixo, [data-theme="light"]) sobrepõe estes valores. */
+    --background: 199 70% 12%; /* #092634 */
+    --foreground: 0 0% 98%; /* #F9F9F9 */
+
+    --card: 199 60% 15%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 199 62% 14%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 14 100% 63%; /* #FF6E42 — reservado para ações importantes */
+    --primary-hover: 14 100% 67%; /* #FF7D57 */
+    --primary-foreground: 199 70% 12%; /* texto escuro sobre laranja */
+
+    --secondary: 199 100% 22%; /* #004E72 */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 199 40% 18%;
+    --muted-foreground: 199 20% 68%;
+
+    --accent: 199 45% 20%; /* superfície de hover/destaque — distinto do brand accent (laranja) */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 152 55% 45%;
+    --success-foreground: 199 70% 12%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 199 70% 12%;
+
+    --info: 210 100% 53%; /* #168CFF — azul luminoso, usado com contenção */
+    --info-foreground: 0 0% 98%;
+
+    --border: 199 35% 22%;
+    --input: 199 35% 22%;
+    --ring: 210 100% 53%;
+
+    --radius: 0.625rem;
+
+    /* "Chrome" da app (Sidebar + Topbar): mantém-se sempre escuro/navy,
+       mesmo em light mode. É a marca a funcionar como uma faixa fixa —
+       só o conteúdo principal muda de tema. Nunca sobreposto por .light. */
+    --chrome-background: 199 70% 11%;
+    --chrome-surface: 199 55% 15%;
+    --chrome-foreground: 0 0% 98%;
+    --chrome-muted-foreground: 199 20% 68%;
+    --chrome-border: 199 40% 20%;
+    --chrome-active: 199 100% 22%;
+  }
+
+  /* Light mode: alternativa explícita, nunca o default. Ativado via
+     next-themes (attribute="class"), que aplica class="light" na tag <html>. */
+  .light {
+    --background: 200 25% 97%; /* ~#F4F7F9 */
+    --foreground: 199 70% 12%; /* reaproveita o dark bg como texto */
+
+    --card: 0 0% 100%;
+    --card-foreground: 199 70% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 199 70% 12%;
+
+    --primary: 14 100% 63%;
+    --primary-hover: 14 100% 67%;
+    --primary-foreground: 199 70% 12%;
+
+    --secondary: 199 100% 22%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 200 20% 93%;
+    --muted-foreground: 199 15% 40%;
+
+    --accent: 199 55% 92%;
+    --accent-foreground: 199 70% 15%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 152 55% 38%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 48%;
+    --warning-foreground: 199 70% 12%;
+
+    --info: 210 100% 53%;
+    --info-foreground: 0 0% 98%;
+
+    --border: 200 20% 88%;
+    --input: 200 20% 88%;
+    --ring: 210 100% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    height: 100%;
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100%;
+    @apply bg-background text-foreground antialiased;
+  }
+}
