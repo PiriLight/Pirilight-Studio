@@ -27,4 +27,10 @@ O primeiro build remoto falhou por exclusão acidental de `src/lib/supabase`; `.
 
 Publicação feita por CLI a partir desta pasta e das alterações locais, sem push ou merge Git. `.vercel/project.json` identifica o projeto correto. O comando `vercel link` acrescentou automaticamente a configuração OIDC à `.env.local`; esse ficheiro permanece ignorado.
 
-Até sincronizar este trabalho com o repositório remoto correto, futuras publicações devem usar esta pasta revista. Não presumir que o Git remoto já contém esta versão.
+## Atualização de 15 setembro 2026
+
+Código sincronizado com `PiriLight/Pirilight-Studio`, branch main, commit `0e35374`. Migração `20260915121236_organization_delete.sql` aplicada e registada no Supabase após autorização; testes remotos de eliminação, dependências, concorrência, anonimato e auditoria passaram numa transação anulada.
+
+Publicação `dpl_8oN5QbQeaHHVKS5dj4tbnf87jwBQ` concluída, promovida e associada a `https://app.pirilight.pt`. URL de deployment: `https://pirilight-studio-kr762hk2i-vexas-stud1o.vercel.app`. Compilação e TypeScript passaram na Vercel. Sessão Sny no domínio final mostra Concluir tarefa e Apagar; diálogo de confirmação verificado e cancelado sem eliminar trabalho existente.
+
+O GitHub está atualizado; a publicação continua a ser feita por CLI, sem configuração nova de publicação automática.
