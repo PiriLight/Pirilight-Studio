@@ -3,6 +3,11 @@
 Este documento separa o que já está no código do que exige uma ação administrativa.
 Não contém chaves, IDs de utilizadores ou valores DNS inventados.
 
+> Atualização de 14/09/2026: o projeto Supabase e as tabelas já estão ativos, e o
+> Studio já foi publicado na Vercel. O estado verificado está em
+> [DEPLOYMENT_CHECKPOINT.md](DEPLOYMENT_CHECKPOINT.md). O guia abaixo descreve a
+> preparação original; não repetir criação de projeto, contas ou migrations.
+
 ## 1. Supabase
 
 ### Escolher o projeto

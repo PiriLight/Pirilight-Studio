@@ -4,7 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { requireAuthorizedUser } from "@/lib/auth/authorization";
 
 export default async function AppGroupLayout({ children }: { children: ReactNode }) {
-  await requireAuthorizedUser();
+  const user = await requireAuthorizedUser();
 
-  return <AppShell>{children}</AppShell>;
+  return <AppShell user={user}>{children}</AppShell>;
 }

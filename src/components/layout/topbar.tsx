@@ -6,8 +6,9 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ProfileSwitcher } from "@/components/layout/profile-switcher";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { getNavItemByHref } from "@/lib/constants/nav";
+import type { AuthorizedAppUser } from "@/lib/auth/authorization";
 
-export function Topbar() {
+export function Topbar({ user }: { user: AuthorizedAppUser }) {
   const pathname = usePathname();
   const currentItem = getNavItemByHref(pathname ?? "/");
 
@@ -20,7 +21,7 @@ export function Topbar() {
       </p>
 
       <ThemeToggle />
-      <ProfileSwitcher collapsed />
+      <ProfileSwitcher user={user} collapsed />
     </header>
   );
 }

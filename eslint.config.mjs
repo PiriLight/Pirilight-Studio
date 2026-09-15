@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "Pirilight-Studio-main/**",
+    "docs/architecture/**",
   ]),
 ]);
 

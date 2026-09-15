@@ -1,46 +1,45 @@
-# PiriLight Studio — Command Center
+# PiriLight Studio
 
-Aplicação interna e privada de gestão do negócio da **PiriLight Studio** e da **PiriCard**, usada pelo Sny e pelo Bino.
+Ferramenta interna da PiriLight, com acesso autorizado por Supabase Auth.
 
-O plano de implementação completo está em [`/root/.claude/plans/i-want-to-build-stateless-wolf.md`](../../root/.claude/plans/i-want-to-build-stateless-wolf.md) (secções 0–15: arquitetura, modelo de dados, navegação, ordem de implementação, etc.).
+**Acesso online:** https://app.pirilight.pt — publicado na Vercel em 14/09/2026.
+[Checkpoint de publicação e manutenção](docs/DEPLOYMENT_CHECKPOINT.md).
 
-## Estado atual
+## Centro de Organização
 
-Esta ronda entrega apenas a fundação visual, sem dados nem lógica de negócio:
+Esta iteração prepara clientes, projetos e tarefas ligados, pesquisa, captura rápida,
+atenção por regras explícitas e persistência Supabase. O histórico anterior permanece
+em **Estrutura anterior**, identificado como protótipo com dados mock/locais.
 
-- Next.js 16 (App Router) + TypeScript (`strict` + `noUncheckedIndexedAccess`) + Tailwind CSS v3.4
-- Identidade visual real da PiriLight (dark-first), com light mode via `next-themes`
-- shadcn/ui — primitivos essenciais (Button, Card, Badge, Tabs, Sheet, Skeleton, Tooltip, DropdownMenu, ScrollArea, Avatar, EmptyState)
-- `AppShell` (Sidebar + Topbar, "chrome" sempre escuro, brand-first) + navegação mobile (Sheet)
-- As 11 rotas estruturais (Dashboard, Tarefas, Comercial, Clientes, Websites, PiriCards, Renovações, Goals, Maintenance, Finance, Materials), com o Dashboard a reproduzir visualmente a estrutura final e as restantes como placeholders
-- Interface em Português de Portugal, responsivo (desktop + mobile)
+**Base operacional ativada em 14/09/2026**, após autorização explícita, no projeto
+Supabase `puipgxpnqkcoyyxgmquq`. Esta instalação local tem
+`PIRILIGHT_OPERATIONS_ENABLED=true`. Instalações novas continuam desligadas por
+omissão. Os exemplos anteriores não foram importados como dados reais.
 
-A aplicação inclui agora os módulos operacionais entregues até ao Round 9 e uma
-camada de acesso privado preparada para Supabase Auth:
+- [Auditoria, modelo, testes e plano de ativação](docs/ORGANIZATION_REVIEW.md)
+- [Migration local para revisão](supabase/migrations/20260914141357_organization_core.sql)
+- [Capturas de laboratório](docs/organization-captures/)
+- [Configuração de autenticação](docs/PRODUCTION_SETUP.md)
 
-- login por email e palavra-passe;
-- sessão SSR persistente em cookies;
-- allowlist `app_users` separada de `auth.users`;
-- proteção de todas as rotas do Command Center no Proxy e no layout server-side;
-- logout e recuperação/reset de palavra-passe;
-- sem registo público e sem qualquer `service_role` no frontend.
-
-O conteúdo operacional continua a ser mock/local nesta fase. Os módulos que usam
-Zustand persistem alterações no `localStorage` do browser; autenticação não equivale
-ainda a uma base de dados partilhada.
-
-Consulta [`docs/AUTH_AUDIT.md`](docs/AUTH_AUDIT.md) para o diagnóstico e
-[`docs/PRODUCTION_SETUP.md`](docs/PRODUCTION_SETUP.md) para o checklist de ativação.
+Login, recuperação de palavra-passe, cookies e allowlist existentes foram preservados.
+O cabeçalho mostra a identidade da sessão autorizada; já não simula a troca de owner.
 
 ## Desenvolvimento
 
-```bash
-pnpm install
-pnpm dev      # http://localhost:3000
-pnpm build    # build de produção
-pnpm lint     # eslint
-pnpm test     # testes unitários
+```powershell
+pnpm.cmd install --frozen-lockfile
+pnpm.cmd dev --port 3100
+pnpm.cmd build
+pnpm.cmd lint
+pnpm.cmd exec tsc --noEmit
+pnpm.cmd test
+# Docker: container descartável, sem portas expostas e sem rede.
+pwsh -File tests/operations/run-database-tests.ps1
 ```
 
-Cria `.env.local` a partir de `.env.example`. Nunca coloques uma secret key ou
-`service_role` numa variável `NEXT_PUBLIC_*`.
+Cria `.env.local` a partir de `.env.example`. Nunca coloques secrets ou `service_role`
+em variáveis `NEXT_PUBLIC_*`. Não executar migrations remotas nem deploys como parte
+destes testes.
+
+A raiz é um repositório Git local, criado para preservar esta cópia antes da iteração.
+A cópia aninhada `Pirilight-Studio-main/` foi mantida e excluída dos checks da raiz.

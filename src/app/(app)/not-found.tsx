@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound() { return <section className="space-y-4 rounded-xl border p-8"><h1 className="text-xl font-semibold">Registo não encontrado</h1><p className="text-sm text-muted-foreground">O endereço pode estar desatualizado ou o registo já não está acessível.</p><Link className="inline-block text-info hover:underline" href="/">Voltar ao Centro de Organização</Link></section>; }

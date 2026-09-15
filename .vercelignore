@@ -1,0 +1,13 @@
+/.git
+/.next
+/node_modules
+/.env*
+/.organization-review
+/Pirilight-Studio-main
+/docs
+/tests
+/supabase
+/*.png
+/*.jpg
+innerWidth
+*.tsbuildinfo

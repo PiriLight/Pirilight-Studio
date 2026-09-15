@@ -22,12 +22,28 @@ export async function getAuthorization(
   userId: string,
   email: string,
 ): Promise<AuthorizationResult> {
-  const { data, error } = await supabase
-    .from("app_users")
-    .select("user_id, display_name, role")
-    .eq("user_id", userId)
-    .eq("is_active", true)
-    .maybeSingle();
+  const lookup = () =>
+    supabase
+      .from("app_users")
+      .select("user_id, display_name, role")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+  let result = await lookup();
+  // Auth can issue a token just ahead of the Data API clock. Retry only this
+  // explicit rejection; the API must still validate the JWT and allowlist.
+  for (const delay of [1000, 2000]) {
+    if (
+      result.error?.code !== "PGRST303" ||
+      result.error.message !== "JWT issued at future"
+    ) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    result = await lookup();
+  }
+  const { data, error } = result;
 
   if (error) {
     console.error("[auth] Authorization lookup failed", {
