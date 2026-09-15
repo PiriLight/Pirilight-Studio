@@ -20,6 +20,22 @@ export const metadata: Metadata = {
   title: "PiriLight Studio",
   description:
     "Centro de comando interno da PiriLight Studio e PiriCard — visibilidade operacional para o Sny e o Bino.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+    apple: [
+      {
+        url: "/apple-touch-icon.png",
+        type: "image/png",
+        sizes: "180x180",
+      },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "PiriLight Studio",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
